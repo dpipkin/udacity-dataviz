@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="d3.v3.js"></script>
+    <script src="dimple.v2.0.0.js"></script>
+    
+    <style>
+      circle {
+        fill: grey;
+        stroke: dimgrey;
+        opacity: 0.4;
+      }
+
+      .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 3px;
+      }
+    </style>
+
+    <script type="text/javascript">
+      function draw(data) {
+        d3.selectAll('body')
+          .append('h1')
+          .text('Relationships in Baseball Performance');
+ 
+        d3.selectAll('body')
+          .append('div')
+          .attr('id', 'chart');
+ 
+        var svg = dimple.newSvg("#chart", 590, 400);
+        var chart = new dimple.chart(svg, data);
+        chart.setBounds(60, 30, 500, 330);
+
+        var x = chart.addMeasureAxis('x', 'HR');
+        x.showGridlines = true;
+        x.title = "Home Runs"
+
+        var y = chart.addMeasureAxis('y', 'avg');
+        y.showGridlines = false;
+        y.title = "Batting Average"
+        y.tickFormat = ",.3f";
+
+        chart.addSeries(['name', ''], dimple.chart.bubble);
+        chart.draw();
+
+        d3.selectAll('circle')
+          .attr('r', 3.5);
+        
+        var line = d3.svg.line()
+          .x((d) => { return x._scale(d[0]); })
+          .y((d) => { return y._scale(d[1]); });
+
+        svg.append('path')
+          .datum(d3.range(600).map((x) => { return [x, 0.0156 * Math.log(x + 0.0001) + 0.192]; }))
+          .attr('class', 'line')
+          .attr('d', line);
+
+        svg.append('text')
+          .attr('x', x._scale(400))
+          .attr('y', y._scale(0.350))
+          .text("r^2=0.909");
+      }
+    </script>
+  </head>
+  <body>
+  </body>
+  <script type="text/javascript">
+    d3.csv('baseball_data.csv', function(data) {
+      data['HR'] = +data['HR'];
+      data['avg'] = +data['avg'];
+      return data;
+    }, draw);
+  </script>
+</html>
