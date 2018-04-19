@@ -4,12 +4,13 @@
     <meta charset="utf-8">
     <script src="https://d3js.org/d3.v3.js"></script>
     <script src="http://dimplejs.org/dist/dimple.v2.0.0.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display|Roboto" rel="stylesheet">
     
     <style>
       circle {
         fill: grey;
         stroke: dimgrey;
-        opacity: 0.4;
+        opacity: 0.25;
       }
 
       .line {
@@ -20,6 +21,7 @@
 
       h1 {
         text-align: center;
+        font-family: 'Playfair Display', serif;
       }
 
       #chart, aside {
@@ -32,6 +34,7 @@
 
       p {
         vertical-align: top;
+        font-family: 'Roboto', sans-serif;
       }
 
       #centerWrapper {
@@ -42,14 +45,25 @@
       #callout {
         font-weight: bold;
         text-align: center;
+        font-family: 'Roboto', sans-serif;
+      }
+
+      text {
+        font-family: 'Roboto', sans-serif;
       }
     </style>
 
     <script type="text/javascript">
       var defaultText = 'Batting Average and Home Runs are two statistics used to measure ' +
-                        'a baseball player\'s performance.'
-      var rSquaredText = 'r² is a value that measures how closely related two variables are.'
-      var regressionLineText = 'This regression line shows '
+                        'a baseball player\'s performance. By charting the two together, we ' +
+                        'can see that if a player performs well in one area, they are likely ' +
+                        'to do well in the other.';
+      var rSquaredText = 'r² is a value that measures how closely related two variables are. ' +
+                         'Here we have an r² of 0.909, which means that 90.9% of a change in ' +
+                         'Batting Average can be explained by a change in Home Runs. An r² ' +
+                         'of 1.0 would mean that all of the points are on the regression line.';
+      var regressionLineText = 'This regression line shows what we would expect a player\'s ' +
+                               'Batting Average to be for a given number of Home Runs.';
       function updateText(text) {
         d3.select('#callout').remove();
         d3.selectAll('p')
@@ -75,14 +89,19 @@
 
         var x = chart.addMeasureAxis('x', 'HR');
         x.showGridlines = true;
-        x.title = "Home Runs"
+        x.title = "Home Runs";
+        x.fontFamily = 'Roboto';
+        x.fontSize = 12;
 
         var y = chart.addMeasureAxis('y', 'avg');
         y.showGridlines = false;
-        y.title = "Batting Average"
+        y.title = "Batting Average";
         y.tickFormat = ",.3f";
+        y.fontFamily = 'Roboto';
+        y.fontSize = 12;
 
-        chart.addSeries(['name', ''], dimple.chart.bubble);
+        chart.addSeries(['name', ''], dimple.chart.bubble)
+          .toolTipFontFamily = 'Roboto';
         chart.draw();
 
         d3.selectAll('circle')
@@ -93,7 +112,8 @@
           .y((d) => { return y._scale(d[1]); });
 
         svg.append('path')
-          .datum(d3.range(600).map((x) => { return [x, 0.0156 * Math.log(x + 0.0001) + 0.192]; }))
+          // Use epsilon (0.0001) to prevent math errors
+          .datum(d3.range(600).map((x) => { return [x, 0.0156 * Math.log(x + 0.0001) + 0.192]; })) 
           .attr('class', 'line')
           .attr('d', line)
           .on('mouseover', () => { updateText(regressionLineText); })
