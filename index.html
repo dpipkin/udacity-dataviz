@@ -2,8 +2,8 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <script src="https://d3js.org/d3.v3.min.js"></script>
-    <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <script src="http://dimplejs.org/dist/dimple.v2.0.0.js"></script>
     
     <style>
       circle {
@@ -15,21 +15,61 @@
       .line {
         fill: none;
         stroke: steelblue;
-        stroke-width: 3px;
+        stroke-width: 4px;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      #chart, aside {
+        float: left;
+      }
+
+      aside {
+        max-width: 25%;
+      }
+
+      p {
+        vertical-align: top;
+      }
+
+      #centerWrapper {
+        max-width: 1000px;
+        margin: auto;
+      }
+
+      #callout {
+        font-weight: bold;
+        text-align: center;
       }
     </style>
 
     <script type="text/javascript">
+      var defaultText = 'Batting Average and Home Runs are two statistics used to measure ' +
+                        'a baseball player\'s performance.'
+      var rSquaredText = 'r² is a value that measures how closely related two variables are.'
+      var regressionLineText = 'This regression line shows '
+      function updateText(text) {
+        d3.select('#callout').remove();
+        d3.selectAll('p')
+          .text(text);
+      }
       function draw(data) {
         d3.selectAll('body')
           .append('h1')
           .text('Relationships in Baseball Performance');
- 
-        d3.selectAll('body')
+        
+        var centerWrapper = d3.selectAll('body')
           .append('div')
-          .attr('id', 'chart');
+          .attr('id', 'centerWrapper');
  
-        var svg = dimple.newSvg("#chart", 590, 400);
+        var svg = centerWrapper.append('div')
+          .attr('id', 'chart')
+          .append('svg')
+          .attr('width', 590)
+          .attr('height', 400);
+        
         var chart = new dimple.chart(svg, data);
         chart.setBounds(60, 30, 500, 330);
 
@@ -46,7 +86,7 @@
         chart.draw();
 
         d3.selectAll('circle')
-          .attr('r', 3.5);
+          .attr('r', 4);
         
         var line = d3.svg.line()
           .x((d) => { return x._scale(d[0]); })
@@ -55,12 +95,28 @@
         svg.append('path')
           .datum(d3.range(600).map((x) => { return [x, 0.0156 * Math.log(x + 0.0001) + 0.192]; }))
           .attr('class', 'line')
-          .attr('d', line);
+          .attr('d', line)
+          .on('mouseover', () => { updateText(regressionLineText); })
+          .on('mouseout', () => { updateText(defaultText); addCallout();});
 
-        svg.append('text')
+        var r_squared = svg.append('text')
           .attr('x', x._scale(400))
           .attr('y', y._scale(0.350))
-          .text("r^2=0.909");
+          .text("r²=0.909")
+          .on('mouseover', () => { updateText(rSquaredText); })
+          .on('mouseout', () => { updateText(defaultText); addCallout();});
+        
+        var aside = centerWrapper.append('aside');
+
+        aside.append('p')
+          .text(defaultText);
+        
+        function addCallout() {
+          aside.append('div')
+          .attr('id', 'callout')
+          .text('* Hover over for more detail *');
+        };
+        addCallout();
       }
     </script>
   </head>
