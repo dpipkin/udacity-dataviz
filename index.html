@@ -65,6 +65,9 @@
       var regressionLineText = 'This regression line shows what we would expect a player\'s ' +
                                'Batting Average to be for a given number of Home Runs.';
       function updateText(text) {
+      // We only want the callout on the default text,
+      // so we remove it here, and add it later whenever
+      // we render the default text.
         d3.select('#callout').remove();
         d3.selectAll('p')
           .text(text);
@@ -89,14 +92,14 @@
 
         var x = chart.addMeasureAxis('x', 'HR');
         x.showGridlines = true;
-        x.title = "Home Runs";
+        x.title = 'Home Runs';
         x.fontFamily = 'Roboto';
         x.fontSize = 12;
 
         var y = chart.addMeasureAxis('y', 'avg');
         y.showGridlines = false;
-        y.title = "Batting Average";
-        y.tickFormat = ",.3f";
+        y.title = 'Batting Average';
+        y.tickFormat = ',.3f';
         y.fontFamily = 'Roboto';
         y.fontSize = 12;
 
@@ -107,22 +110,24 @@
         d3.selectAll('circle')
           .attr('r', 4);
         
+        // This will be our regression line.
         var line = d3.svg.line()
           .x((d) => { return x._scale(d[0]); })
           .y((d) => { return y._scale(d[1]); });
 
         svg.append('path')
           // Use epsilon (0.0001) to prevent math errors
+          // coefficients were calculated using R
           .datum(d3.range(600).map((x) => { return [x, 0.0156 * Math.log(x + 0.0001) + 0.192]; })) 
           .attr('class', 'line')
           .attr('d', line)
           .on('mouseover', () => { updateText(regressionLineText); })
-          .on('mouseout', () => { updateText(defaultText); addCallout();});
+          .on('mouseout', () => { updateText(defaultText); addCallout();}); // We only want the callout on the default text
 
         var r_squared = svg.append('text')
           .attr('x', x._scale(400))
           .attr('y', y._scale(0.350))
-          .text("r²=0.909")
+          .text('r²=0.909')
           .on('mouseover', () => { updateText(rSquaredText); })
           .on('mouseout', () => { updateText(defaultText); addCallout();});
         
