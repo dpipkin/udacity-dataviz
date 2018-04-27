@@ -1,5 +1,9 @@
 # Final Project
 
+Original Visualization: http://bl.ocks.org/dpipkin/59b59509a2badb3ee8df9102fb97207f
+
+Final Visualization: http://bl.ocks.org/dpipkin/166dc36b027668237baea3d2ed36dc48
+
 ## Summary
 
 Batting Average and Home Runs are two statistics used to measure a baseball player's performance. By plotting the baseball data provided by Udacity, we can see that they are strongly related to each other. This indicates that if one is a good measure of performance, they probably both are.
